@@ -13,8 +13,16 @@ import com.sap.adt.communication.content.ContentHandlerException;
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.IMessageBody;
 
-public class ApackGitManifestResponseContentHandlerV1 implements IContentHandler<IApackManifest> {
-	private static final String CONTENT_TYPE_V1 = "application/apack.adt.gitmanifest.response.v1+xml"; //$NON-NLS-1$
+public class ApackManifestResponseContentHandlerV1 implements IContentHandler<IApackManifest> {
+
+	private static final String CONTENT_TYPE_GIT_MANIFEST_V1 = "application/apack.adt.gitmanifest.response.v1+xml"; //$NON-NLS-1$
+	private static final String CONTENT_TYPE_BACKEND_MANIFEST_V1 = "application/apack.adt.manifest.response.v1+xml"; //$NON-NLS-1$
+
+	private String contentType;
+
+	public ApackManifestResponseContentHandlerV1() {
+		this.contentType = CONTENT_TYPE_GIT_MANIFEST_V1;
+	}
 
 	@Override
 	public IApackManifest deserialize(IMessageBody body, Class<? extends IApackManifest> dataType) {
@@ -37,7 +45,7 @@ public class ApackGitManifestResponseContentHandlerV1 implements IContentHandler
 
 	@Override
 	public String getSupportedContentType() {
-		return CONTENT_TYPE_V1;
+		return this.contentType;
 	}
 
 	@Override
@@ -48,6 +56,14 @@ public class ApackGitManifestResponseContentHandlerV1 implements IContentHandler
 	@Override
 	public IMessageBody serialize(IApackManifest dataObject, Charset charset) {
 		throw new UnsupportedOperationException();
+	}
+
+	public void setAcceptHeaderGitManifest() {
+		this.contentType = CONTENT_TYPE_GIT_MANIFEST_V1;
+	}
+
+	public void setAcceptHeaderBackendManifest() {
+		this.contentType = CONTENT_TYPE_BACKEND_MANIFEST_V1;
 	}
 
 

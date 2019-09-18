@@ -12,9 +12,14 @@ public class ApackDiscovery {
 
 	private static final String SCHEME = "http://www.sap.com/adt/categories/apack"; //$NON-NLS-1$
 	private static final String TERM_GIT_MANIFESTS = "gitmanifests"; //$NON-NLS-1$
+	private static final String TERM_MANIFESTS = "manifests"; //$NON-NLS-1$
 
 	public URI getGitManifestsUri(String destination, IProgressMonitor progressMonitor) {
 		return getUri(destination, progressMonitor, SCHEME, TERM_GIT_MANIFESTS);
+	}
+
+	public URI getBackendManifestsUri(String destination, IProgressMonitor progressMonitor) {
+		return getUri(destination, progressMonitor, SCHEME, TERM_MANIFESTS);
 	}
 
 	private URI getUri(String destination, IProgressMonitor monitor, String scheme, String term) {

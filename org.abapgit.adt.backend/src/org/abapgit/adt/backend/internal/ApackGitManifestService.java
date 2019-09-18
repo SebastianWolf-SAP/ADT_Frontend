@@ -33,9 +33,9 @@ public class ApackGitManifestService implements IApackGitManifestService {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
 
-		IContentHandler<?> requestContentHandlerV1 = new ApackGitManifestRequestContentHandlerV1();
+		IContentHandler<?> requestContentHandlerV1 = new ApackManifestRequestContentHandlerV1();
 		restResource.addContentHandler(requestContentHandlerV1);
-		IContentHandler<?> responseContentHandlerV1 = new ApackGitManifestResponseContentHandlerV1();
+		IContentHandler<?> responseContentHandlerV1 = new ApackManifestResponseContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory

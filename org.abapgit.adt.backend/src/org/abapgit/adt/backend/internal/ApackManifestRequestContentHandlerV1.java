@@ -12,9 +12,15 @@ import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.ByteArrayMessageBody;
 import com.sap.adt.communication.message.IMessageBody;
 
-public class ApackGitManifestRequestContentHandlerV1 implements IContentHandler<IApackGitManifestRequest> {
+public class ApackManifestRequestContentHandlerV1 implements IContentHandler<IApackGitManifestRequest> {
 
 	private static final String CONTENT_TYPE_V1 = "application/apack.adt.gitmanifest.request.v1+xml"; //$NON-NLS-1$
+
+	private final String contentType;
+
+	public ApackManifestRequestContentHandlerV1() {
+		this.contentType = CONTENT_TYPE_V1;
+	}
 
 	@Override
 	public IApackGitManifestRequest deserialize(IMessageBody body, Class<? extends IApackGitManifestRequest> dataType) {
@@ -49,7 +55,7 @@ public class ApackGitManifestRequestContentHandlerV1 implements IContentHandler<
 
 	@Override
 	public String getSupportedContentType() {
-		return CONTENT_TYPE_V1;
+		return this.contentType;
 	}
 
 	@Override

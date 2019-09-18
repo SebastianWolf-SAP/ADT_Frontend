@@ -60,6 +60,10 @@ public interface IApackManifest {
 
 		void setRequiresSynchronization(boolean requiresSynchronization);
 
+		String getInstalledVersion();
+
+		void setInstalledVersion(String installedVersion);
+
 	}
 
 	interface IApackManifestDescriptor {

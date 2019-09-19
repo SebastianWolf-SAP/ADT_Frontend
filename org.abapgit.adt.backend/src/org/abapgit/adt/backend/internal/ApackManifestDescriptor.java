@@ -158,4 +158,9 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 		this.repositoryType = repositoryType;
 	}
 
+	@Override
+	public String getGlobalIdentifer() {
+		return this.groupId + "/" + this.artifactId; //$NON-NLS-1$
+	}
+
 }

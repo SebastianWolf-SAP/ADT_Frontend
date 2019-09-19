@@ -31,6 +31,20 @@ public class ApackVersionDependency implements IApackVersionDependency {
 		if (rawVersion == null) {
 			return;
 		}
+		if (rawVersion.isEmpty()) {
+			this.minimumClassifier = EApackVersionDependencyClassifier.inclusive;
+			this.minimum = "0.0.0"; //$NON-NLS-1$
+			this.minimumMajor = 0;
+			this.minimumMinor = 0;
+			this.minimumPatch = 0;
+			this.maximumClassifier = EApackVersionDependencyClassifier.inclusive;
+			this.maximum = Integer.MAX_VALUE + "." + Integer.MAX_VALUE + "." + Integer.MAX_VALUE; //$NON-NLS-1$ //$NON-NLS-2$
+			this.maximumMajor = Integer.MAX_VALUE;
+			this.maximumMinor = Integer.MAX_VALUE;
+			this.maximumPatch = Integer.MAX_VALUE;
+			this.range = true;
+			this.valid = true;
+		}
 		if (rawVersion.matches(VERSION_RANGE)) {
 			Matcher rangeMatcher = PATTERN_VERSION_RANGE.matcher(rawVersion);
 			rangeMatcher.find();

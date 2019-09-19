@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.abapgit.adt.backend.ApackServiceFactory;
+import org.abapgit.adt.backend.IApackBackendManifestService;
 import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
@@ -68,7 +70,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.pullAction = pullAction;
 		this.lastApackCall = new ApackParameters();
 		this.chboxLinkAndPull = false;
-
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -309,14 +310,28 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, dependencyCoverage,
 							retrievedManifests, nextApackCall);
 
-					retriveInstalledManifests(monitor, retrievedManifests);
+					AbapGitWizardPageBranchAndPackage.this.cloneData.installedManifests = retriveInstalledManifests(monitor,
+							retrievedManifests);
 
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 				}
 
-				private void retriveInstalledManifests(IProgressMonitor monitor, final List<IApackManifest> retrievedManifests) {
+				private Map<String, IApackManifest> retriveInstalledManifests(IProgressMonitor monitor,
+						final List<IApackManifest> retrievedManifests) {
 					// Retrieve installed manifests and populate versions for later evaluation
+					HashMap<String, IApackManifest> installedManifests = new HashMap<String, IApackManifest>();
+					IApackBackendManifestService backendManifestService = ApackServiceFactory
+							.createApackBackendManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
+					for (IApackManifest retrievedManifest : retrievedManifests) {
+						IApackManifest backendManifest = backendManifestService.getManifest(retrievedManifest.getDescriptor().getGroupId(),
+								retrievedManifest.getDescriptor().getPackageId(), monitor);
+						if (backendManifest != null && backendManifest.getDescriptor() != null) {
+							installedManifests.put(backendManifest.getDescriptor().getGlobalIdentifer(), backendManifest);
+						}
+
+					}
+					return installedManifests;
 				}
 
 				private IApackManifest retrieveApackManifest(IProgressMonitor monitor, final HashMap<String, Boolean> dependencyCoverage,
@@ -345,8 +360,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 
 				private void retrieveDependentManifests(ApackParameters apackParameters, final HashMap<String, Boolean> dependencyCoverage,
-						final List<IApackManifest> retrievedManifests, IApackGitManifestService manifestService,
-						IProgressMonitor monitor) {
+						final List<IApackManifest> retrievedManifests, IApackGitManifestService manifestService, IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
 							IProgressMonitor.UNKNOWN);
 					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
@@ -367,7 +381,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 			evaluateManifests();
 
-
 		} catch (InvocationTargetException e) {
 			setPageComplete(false);
 			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
@@ -378,7 +391,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	}
 
 	private void evaluateManifests() {
-		// BIG TODO
 
 		// We check all dependencies if they are already installed and which version is already installed
 		// The evaluation of the results will be done according to the following rules:
@@ -387,13 +399,32 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		// - If it's installed and the required version (range) is compatible, it remains untouched
 		// - If it's installed and the required version (range) is incompatible, we try to install a compatible one
 		// If we determine that a remote repository doesn't contain a compatible version,
-		//  we ask the user if the remote one should be installed anyway
+		// we ask the user if the remote one should be installed anyway
 
 		// Dependency issues will be reported as errors
 		// Updated dependencies will be reported as information messages
 
-		// In the end the dependencies are added to the root apackManifest (stored in cloneData)
-		// // myManifest.getDescriptor().setDependencies(retrievedDependencies);
+		List<IApackDependency> retrievedDependencies = new ArrayList<IApackDependency>();
+
+		for (IApackDependency currentDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
+			String currentGlobalIdentifier = currentDependency.getGlobalIdentifier();
+
+			IApackManifest installedManifest = this.cloneData.installedManifests.getOrDefault(currentGlobalIdentifier, null);
+			if (installedManifest == null) {
+				// Dependency is not installed -> We need to synchronize it
+				currentDependency.setRequiresSynchronization(true);
+			} else if (currentDependency.getVersion().isVersionCompatible(installedManifest.getDescriptor().getVersion())) {
+				currentDependency.setRequiresSynchronization(false);
+			} else {
+				currentDependency.setRequiresSynchronization(true);
+				// TODO: Check installed components if
+				// - newly synchronized version is compatible with existing solutions
+				// - remote version really satisfies the version requirement
+				// Remote manifest should already have been retrieved
+			}
+			retrievedDependencies.add(currentDependency);
+			// TODO: Walk dependencies recursively
+		}
 
 		// If everything is successful:
 		setPageComplete(true);

@@ -13,7 +13,6 @@ public class ApackDependency implements IApackDependency {
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
 	private boolean requiresSynchronization;
-	private String installedVersion;
 
 	public ApackDependency() {
 		this.requiresSynchronization = true;
@@ -158,13 +157,8 @@ public class ApackDependency implements IApackDependency {
 	}
 
 	@Override
-	public String getInstalledVersion() {
-		return this.installedVersion;
-	}
-
-	@Override
-	public void setInstalledVersion(String installedVersion) {
-		this.installedVersion = installedVersion;
+	public String getGlobalIdentifier() {
+		return this.groupId + "/" + this.artifactId; //$NON-NLS-1$
 	}
 
 }

@@ -182,5 +182,16 @@ public class TestsUnitApackVersionDependency {
 		assertFalse(versionDependency.isVersionCompatible("1.0.34"));
 	}
 	
+	@Test
+	public void noVersionAlwaysCompatible() {
+		IApackVersionDependency versionDependency = new ApackVersionDependency("");
+		assertTrue(versionDependency.isVersionCompatible("0.1.11"));
+		assertTrue(versionDependency.isVersionCompatible("0.1.42-42"));
+		assertTrue(versionDependency.isVersionCompatible("0.1.43-42"));
+		assertTrue(versionDependency.isVersionCompatible("0.999.999"));
+		assertTrue(versionDependency.isVersionCompatible("1.0"));
+		assertTrue(versionDependency.isVersionCompatible("1.0.33"));
+		assertTrue(versionDependency.isVersionCompatible("1.0.34"));
+	}
 
 }

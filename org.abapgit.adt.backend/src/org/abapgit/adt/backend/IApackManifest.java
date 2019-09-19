@@ -46,6 +46,8 @@ public interface IApackManifest {
 
 		String getArtifactId();
 
+		String getGlobalIdentifier();
+
 		IApackVersionDependency getVersion();
 
 		String getGitUrl();
@@ -60,10 +62,6 @@ public interface IApackManifest {
 
 		void setRequiresSynchronization(boolean requiresSynchronization);
 
-		String getInstalledVersion();
-
-		void setInstalledVersion(String installedVersion);
-
 	}
 
 	interface IApackManifestDescriptor {
@@ -71,6 +69,8 @@ public interface IApackManifest {
 		String getGroupId();
 
 		String getPackageId();
+
+		String getGlobalIdentifer();
 
 		String getVersion();
 

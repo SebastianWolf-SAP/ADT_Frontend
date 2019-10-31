@@ -3,7 +3,6 @@ package org.abapgit.adt.ui.internal.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.abapgit.adt.backend.AbapGitModelFactory;
 import org.abapgit.adt.backend.IApackManifest;
@@ -267,7 +266,6 @@ public class AbapGitWizard extends Wizard {
 		public String user;
 		public String pass;
 		public IApackManifest apackManifest;
-		public Map<String, IApackManifest> installedManifests;
 
 		public boolean hasDependencies() {
 			return this.apackManifest != null && this.apackManifest.hasDependencies();

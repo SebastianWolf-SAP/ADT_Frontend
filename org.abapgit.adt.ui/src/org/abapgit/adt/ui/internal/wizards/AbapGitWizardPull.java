@@ -148,7 +148,7 @@ public class AbapGitWizardPull extends Wizard {
 				private void pullDependencies(IProgressMonitor monitor, IRepositoryService repoService) {
 					for (IApackDependency apackDependency : AbapGitWizardPull.this.cloneData.apackManifest.getDescriptor()
 							.getDependencies()) {
-						if (apackDependency.requiresSynchronization()) {
+						if (apackDependency.requiresLink()) {
 							IRepository dependencyRepository = getRepositoryForDependency(apackDependency);
 							if (dependencyRepository != null) {
 								repoService.pullRepository(dependencyRepository, IApackManifest.MASTER_BRANCH,

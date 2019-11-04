@@ -5,6 +5,8 @@ import org.abapgit.adt.backend.IApackManifest;
 public class ApackManifest implements IApackManifest {
 
 	private IApackManifestDescriptor descriptor;
+	private String syncMessageText;
+	private int syncMessageType;
 
 	@Override
 	public IApackManifestDescriptor getDescriptor() {
@@ -60,6 +62,22 @@ public class ApackManifest implements IApackManifest {
 			return this.descriptor.getDependencies().size() > 0;
 		}
 		return false;
+	}
+
+	@Override
+	public void setSyncMessage(String text, int type) {
+		this.syncMessageText = text;
+		this.syncMessageType = type;
+	}
+
+	@Override
+	public String getSyncMessageText() {
+		return this.syncMessageText;
+	}
+
+	@Override
+	public int getSyncMessageType() {
+		return this.syncMessageType;
 	}
 
 }

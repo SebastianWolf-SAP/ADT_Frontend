@@ -58,9 +58,19 @@ public interface IApackManifest {
 
 		IAdtObjectReference getTargetPackage();
 
-		boolean requiresSynchronization();
+		boolean requiresLink();
 
-		void setRequiresSynchronization(boolean requiresSynchronization);
+		void setRequiresLink(boolean requiresLink);
+
+		boolean requiresPull();
+
+		void setRequiresPull(boolean requiresPull);
+
+		void setSyncMessage(String text, int type);
+
+		String getSyncMessageText();
+
+		int getSyncMessageType();
 
 	}
 
@@ -89,5 +99,11 @@ public interface IApackManifest {
 	IApackManifestDescriptor getDescriptor();
 
 	boolean hasDependencies();
+
+	void setSyncMessage(String text, int type);
+
+	String getSyncMessageText();
+
+	int getSyncMessageType();
 
 }

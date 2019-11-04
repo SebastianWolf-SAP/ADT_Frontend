@@ -15,7 +15,7 @@ public class TestsUnitApackDependency {
 		apackDependencyOne.setGroupId("sap.com");
 		apackDependencyOne.setArtifactId("my-fancy-component");
 		apackDependencyOne.setGitUrl("https://github.com/SAP/abap-platform-fancy-component");
-		apackDependencyOne.setRequiresSynchronization(true);
+		apackDependencyOne.setRequiresLink(true);
 		IAdtObjectReference targetPackageOne = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
 		apackDependencyOne.setTargetPackage(targetPackageOne);
 		
@@ -23,7 +23,7 @@ public class TestsUnitApackDependency {
 		apackDependencyTwo.setGroupId("sap.com");
 		apackDependencyTwo.setArtifactId("my-fancy-component");
 		apackDependencyTwo.setGitUrl("https://github.com/SAP/abap-platform-fancy-component");
-		apackDependencyTwo.setRequiresSynchronization(true);
+		apackDependencyTwo.setRequiresLink(true);
 		IAdtObjectReference targetPackageTwo = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
 		apackDependencyTwo.setTargetPackage(targetPackageTwo);
 		

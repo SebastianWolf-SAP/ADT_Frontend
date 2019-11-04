@@ -162,7 +162,7 @@ public class ApackVersionDependency implements IApackVersionDependency {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("APACK Version Dependency [minimum="); //$NON-NLS-1$
+		builder.append("minimum="); //$NON-NLS-1$
 		builder.append(this.getMinimum());
 		builder.append(", minimumClassifier="); //$NON-NLS-1$
 		builder.append(this.getMinimumClassifier());
@@ -170,7 +170,6 @@ public class ApackVersionDependency implements IApackVersionDependency {
 		builder.append(this.getMaximum());
 		builder.append(", maximumClassifier="); //$NON-NLS-1$
 		builder.append(this.getMaximumClassifier());
-		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
 

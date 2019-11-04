@@ -117,7 +117,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 		this.table.setLayoutData(gridData);
 		String[] titles = { Messages.AbapGitWizardPageApack_table_header_group_id, Messages.AbapGitWizardPageApack_table_header_artifact_id,
 				Messages.AbapGitWizardPageApack_table_header_git_repository_url,
-				Messages.AbapGitWizardPageApack_table_header_package_name };
+				Messages.AbapGitWizardPageApack_table_header_package_name, Messages.AbapGitWizardPageApack_table_header_information };
 		for (String title : titles) {
 			TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
 			TableColumn column = viewerColumn.getColumn();
@@ -143,8 +143,16 @@ public class AbapGitWizardPageApack extends WizardPage {
 			setTextVersion(manifestDescriptor);
 			setTextGitUrl(manifestDescriptor);
 			buildDependencyTable(manifestDescriptor);
+			checkSyncMessages();
 		}
 
+	}
+
+	private void checkSyncMessages() {
+		if (this.cloneData.apackManifest.getSyncMessageType() >= DialogPage.ERROR) {
+			setPageComplete(false);
+			setMessage(this.cloneData.apackManifest.getSyncMessageText());
+		}
 	}
 
 	private void buildDependencyTable(IApackManifestDescriptor manifestDescriptor) {
@@ -154,7 +162,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 				final int packageColumnIndex = 3;
 				TableItem tableItem = new TableItem(this.table, SWT.NONE);
 				tableItem.setText(new String[] { dependency.getGroupId(), dependency.getArtifactId(), dependency.getGitUrl(),
-						dependency.getTargetPackage().getName() });
+						dependency.getTargetPackage().getName(), dependency.getSyncMessageText() });
 
 				if (dependency.getTargetPackage() == null || dependency.getTargetPackage().getName() == null
 						|| dependency.getTargetPackage().getName().isEmpty()) {
@@ -233,7 +241,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 					return false;
 				}
 				if (this.pullScenario && this.pullAllCheckBox.getSelection()) {
-					apackDependency.setRequiresSynchronization(true);
+					apackDependency.setRequiresLink(true);
 				}
 			}
 

@@ -57,6 +57,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageApack_table_header_git_repository_url;
 	public static String AbapGitWizardPageApack_table_header_group_id;
 	public static String AbapGitWizardPageApack_table_header_artifact_id;
+	public static String AbapGitWizardPageApack_table_header_information;
 	public static String AbapGitWizardPageApack_table_header_package_name;
 	public static String AbapGitWizardPageApack_task_error_retrieving_transport_data;
 	public static String AbapGitWizardPageApack_task_invalid_package_assignment;
@@ -66,6 +67,11 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageApack_task_validating_package;
 	public static String AbapGitWizardPageApack_text_no_information_available;
 	public static String AbapGitWizardPageApack_title;
+	public static String AbapGitWizardPageBranchAndPackage_apack_sync_text_already_installed;
+	public static String AbapGitWizardPageBranchAndPackage_apack_sync_text_installation_not_possible;
+	public static String AbapGitWizardPageBranchAndPackage_apack_sync_text_not_yet_installed;
+	public static String AbapGitWizardPageBranchAndPackage_apack_sync_text_version_update;
+	public static String AbapGitWizardPageBranchAndPackage_apack_sync_text_wizard_error;
 	public static String AbapGitWizardPageBranchAndPackage_chbox_activate;
 	public static String AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;

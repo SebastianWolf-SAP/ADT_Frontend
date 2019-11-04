@@ -12,10 +12,14 @@ public class ApackDependency implements IApackDependency {
 	private IApackVersionDependency version;
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
-	private boolean requiresSynchronization;
+	private boolean requiresLink;
+	private boolean requiresPull;
+	private String syncMessageText;
+	private int syncMessageType;
 
 	public ApackDependency() {
-		this.requiresSynchronization = true;
+		this.requiresLink = true;
+		this.requiresPull = true;
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class ApackDependency implements IApackDependency {
 		builder.append(", targetPackage="); //$NON-NLS-1$
 		builder.append(this.targetPackage);
 		builder.append(", requiresSynchronization="); //$NON-NLS-1$
-		builder.append(this.requiresSynchronization);
+		builder.append(this.requiresLink);
 		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
@@ -73,7 +77,7 @@ public class ApackDependency implements IApackDependency {
 		result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
 		// No target package as it doesn't implement a correct equals and is also not really relevant for comparison ;)
-		result = prime * result + (this.requiresSynchronization ? 1337 : 7331);
+		result = prime * result + (this.requiresLink ? 1337 : 7331);
 		return result;
 	}
 
@@ -118,13 +122,13 @@ public class ApackDependency implements IApackDependency {
 			return false;
 		}
 		// No target package as it doesn't implement a correct equals and is also not really relevant for comparison ;)
-		return this.requiresSynchronization == other.requiresSynchronization;
+		return this.requiresLink == other.requiresLink;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return (this.groupId == null || this.groupId.isEmpty()) && (this.artifactId == null || this.artifactId.isEmpty())
-				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresSynchronization);
+				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresLink);
 	}
 
 	@Override
@@ -138,13 +142,13 @@ public class ApackDependency implements IApackDependency {
 	}
 
 	@Override
-	public boolean requiresSynchronization() {
-		return this.requiresSynchronization;
+	public boolean requiresLink() {
+		return this.requiresLink;
 	}
 
 	@Override
-	public void setRequiresSynchronization(boolean requiresSynchronization) {
-		this.requiresSynchronization = requiresSynchronization;
+	public void setRequiresLink(boolean requiresSynchronization) {
+		this.requiresLink = requiresSynchronization;
 	}
 
 	@Override
@@ -159,6 +163,32 @@ public class ApackDependency implements IApackDependency {
 	@Override
 	public String getGlobalIdentifier() {
 		return this.groupId + "/" + this.artifactId; //$NON-NLS-1$
+	}
+
+	@Override
+	public void setSyncMessage(String text, int type) {
+		this.syncMessageText = text;
+		this.syncMessageType = type;
+	}
+
+	@Override
+	public String getSyncMessageText() {
+		return this.syncMessageText;
+	}
+
+	@Override
+	public int getSyncMessageType() {
+		return this.syncMessageType;
+	}
+
+	@Override
+	public boolean requiresPull() {
+		return this.requiresPull;
+	}
+
+	@Override
+	public void setRequiresPull(boolean requiresPull) {
+		this.requiresPull = requiresPull;
 	}
 
 }

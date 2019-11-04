@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 
@@ -49,16 +50,15 @@ public class ApackBackendManifestService implements IApackBackendManifestService
 			restResource.addRequestFilter(compatibilityFilter);
 			restResource.addResponseFilter(compatibilityFilter);
 
-			apackManifest = restResource.get(monitor, IApackManifest.class);
+			return restResource.get(monitor, IApackManifest.class);
+
 		} catch (IOException ioe) {
 			// If the parameters can't be converted, we consider the manifest to be non-existent
-
+			return apackManifest;
+		} catch (ResourceException re) {
+			// Backend resource not existing -> initial manifest
+			return apackManifest;
 		}
-
-		if (apackManifest == null) {
-			apackManifest = new ApackManifest();
-		}
-		return apackManifest;
 	}
 
 }

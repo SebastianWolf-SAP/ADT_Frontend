@@ -301,7 +301,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 					final HashMap<String, Boolean> dependencyCoverage = new HashMap<String, Boolean>();
-					final List<IApackManifest> retrievedManifests = new ArrayList<IApackManifest>();
+					final List<IApackManifest> retrievedRemoteManifests = new ArrayList<IApackManifest>();
 					final Map<String, IApackManifest> installedManifests = new HashMap<String, IApackManifest>();
 
 					ApackParameters nextApackCall = new ApackParameters();
@@ -309,22 +309,22 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					nextApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 
 					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, dependencyCoverage,
-							retrievedManifests, nextApackCall);
+							retrievedRemoteManifests, nextApackCall);
 
-					// retriveInstalledManifests(monitor, retrievedManifests, installedManifests);
+					retrieveInstalledManifests(monitor, retrievedRemoteManifests, installedManifests);
 
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 
-					evaluateManifests(retrievedManifests, installedManifests);
+					evaluateManifests(retrievedRemoteManifests, installedManifests);
 				}
 
-				private void retriveInstalledManifests(IProgressMonitor monitor,
-						final List<IApackManifest> retrievedManifests, final Map<String, IApackManifest> installedManifests) {
+				private void retrieveInstalledManifests(IProgressMonitor monitor, final List<IApackManifest> retrievedRemoteManifests,
+						final Map<String, IApackManifest> installedManifests) {
 					// Retrieve installed manifests and populate versions for later evaluation
 					IApackBackendManifestService backendManifestService = ApackServiceFactory
 							.createApackBackendManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
-					for (IApackManifest retrievedManifest : retrievedManifests) {
+					for (IApackManifest retrievedManifest : retrievedRemoteManifests) {
 						IApackManifest backendManifest = backendManifestService.getManifest(retrievedManifest.getDescriptor().getGroupId(),
 								retrievedManifest.getDescriptor().getPackageId(), monitor);
 						if (backendManifest != null && backendManifest.getDescriptor() != null) {
@@ -335,7 +335,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 
 				private IApackManifest retrieveApackManifest(IProgressMonitor monitor, final HashMap<String, Boolean> dependencyCoverage,
-						final List<IApackManifest> retrievedManifests, ApackParameters apackParameters) {
+						final List<IApackManifest> retrievedRemoteManifests, ApackParameters apackParameters) {
 
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
@@ -350,7 +350,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 						if (myManifest.hasDependencies()) {
 							for (IApackDependency dependency : myManifest.getDescriptor().getDependencies()) {
 								retrieveDependentManifests(ApackParameters.createFromDependency(dependency), dependencyCoverage,
-										retrievedManifests, manifestService, monitor);
+										retrievedRemoteManifests, manifestService, monitor);
 							}
 
 						}
@@ -360,26 +360,26 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 
 				private void retrieveDependentManifests(ApackParameters apackParameters, final HashMap<String, Boolean> dependencyCoverage,
-						final List<IApackManifest> retrievedManifests, IApackGitManifestService manifestService, IProgressMonitor monitor) {
+						final List<IApackManifest> retrievedRemoteManifests, IApackGitManifestService manifestService,
+						IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
 							IProgressMonitor.UNKNOWN);
 					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
 							monitor);
-					retrievedManifests.add(myManifest);
+					retrievedRemoteManifests.add(myManifest);
 					dependencyCoverage.put(apackParameters.url, true);
 					if (myManifest.hasDependencies()) {
 						for (IApackDependency myDependency : myManifest.getDescriptor().getDependencies()) {
 							if (!dependencyCoverage.getOrDefault(myDependency.getGitUrl(), false)) {
 								retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), dependencyCoverage,
-										retrievedManifests, manifestService, monitor);
+										retrievedRemoteManifests, manifestService, monitor);
 							}
 						}
 					}
 				}
 			});
 
-			// TODO: If everything is successful, evaluate results of thread...
 			setPageComplete(true);
 			setMessage(null);
 
@@ -392,7 +392,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		}
 	}
 
-	private void evaluateManifests(final List<IApackManifest> retrievedManifests, final Map<String, IApackManifest> installedManifests) {
+	private void evaluateManifests(final List<IApackManifest> retrievedRemoteManifests,
+			final Map<String, IApackManifest> installedManifests) {
 
 		// We check all dependencies if they are already installed and which version is already installed
 		// The evaluation of the results will be done according to the following rules:
@@ -414,23 +415,42 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			IApackManifest installedManifest = installedManifests.getOrDefault(currentGlobalIdentifier, null);
 			if (installedManifest == null) {
 				// Dependency is not installed -> We need to synchronize it
-				currentDependency.setRequiresSynchronization(true);
-			} else if (currentDependency.getVersion().isVersionCompatible(installedManifest.getDescriptor().getVersion())) {
-				currentDependency.setRequiresSynchronization(false);
+				currentDependency.setRequiresLink(true);
+				currentDependency.setRequiresPull(true);
+				currentDependency.setSyncMessage(Messages.AbapGitWizardPageBranchAndPackage_apack_sync_text_not_yet_installed, DialogPage.INFORMATION);
+			} else if (currentDependency.getVersion().isVersionCompatible(installedManifest.getDescriptor().getVersion())
+					&& currentDependency.getTargetPackage().getPackageName() != null) {
+				currentDependency.setRequiresLink(false);
+				currentDependency.setRequiresPull(false);
+				currentDependency.setSyncMessage(Messages.AbapGitWizardPageBranchAndPackage_apack_sync_text_already_installed, DialogPage.INFORMATION);
 			} else {
-				IApackManifest existingManifest = retrievedManifests.stream()
+				IApackManifest existingManifest = retrievedRemoteManifests.stream()
 						.filter(manifest -> manifest.getDescriptor().getGlobalIdentifer().equals(currentDependency.getGlobalIdentifier()))
 						.findFirst().orElse(null);
 				if (existingManifest != null
 						&& currentDependency.getVersion().isVersionCompatible(existingManifest.getDescriptor().getVersion())) {
-					currentDependency.setRequiresSynchronization(true);
+					currentDependency.setRequiresLink(false);
+					currentDependency.setRequiresPull(true);
+					currentDependency.setSyncMessage(Messages.AbapGitWizardPageBranchAndPackage_apack_sync_text_version_update,
+							DialogPage.INFORMATION);
 				} else {
-					// TODO: Issue big, big error!
+					String currentVersion = "n/a"; //$NON-NLS-1$
+					if (existingManifest != null && existingManifest.getDescriptor() != null
+							&& existingManifest.getDescriptor().getVersion() != null) {
+						currentVersion = existingManifest.getDescriptor().getVersion();
+					}
+					currentDependency
+							.setSyncMessage(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_apack_sync_text_installation_not_possible,
+									currentDependency.getVersion().toString(), currentVersion),
+							DialogPage.ERROR);
+					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest
+							.setSyncMessage(Messages.AbapGitWizardPageBranchAndPackage_apack_sync_text_wizard_error, DialogPage.ERROR);
 				}
 			}
 			retrievedDependencies.add(currentDependency);
 			// TODO: Walk dependencies recursively
 		}
+
 
 	}
 

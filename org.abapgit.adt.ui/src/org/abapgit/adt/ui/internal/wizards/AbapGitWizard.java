@@ -97,20 +97,27 @@ public class AbapGitWizard extends Wizard {
 					if (AbapGitWizard.this.cloneData.hasDependencies()) {
 
 						IRepositories repositoriesToLink = AbapGitModelFactory.createRepositories();
-						repositoriesToLink.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+						IRepositories repositoriesToPull = AbapGitModelFactory.createRepositories();
+						IRepository mainRepository = createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
-								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass);
+						repositoriesToLink.add(mainRepository);
+						repositoriesToPull.add(mainRepository);
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
-							if (apackDependency.requiresSynchronization()) {
-								repositoriesToLink.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
-										apackDependency.getTargetPackage().getName(), transportRequestNumber,
-										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+							IRepository dependentRepository = createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
+									apackDependency.getTargetPackage().getName(), transportRequestNumber, AbapGitWizard.this.cloneData.user,
+									AbapGitWizard.this.cloneData.pass);
+							if (apackDependency.requiresLink()) {
+								repositoriesToLink.add(dependentRepository);
+							}
+							if (apackDependency.requiresPull()) {
+								repositoriesToPull.add(dependentRepository);
 							}
 						}
 						repoService.cloneRepositories(repositoriesToLink, monitor);
 						if (sequenceLnp) {
-							pullLinkedRepositories(monitor, repoService, repositoriesToLink);
+							pullLinkedRepositories(monitor, repoService, repositoriesToPull);
 						}
 					} else {
 						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,

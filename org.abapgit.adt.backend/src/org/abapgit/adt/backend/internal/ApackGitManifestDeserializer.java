@@ -116,7 +116,7 @@ public class ApackGitManifestDeserializer {
 					objectReference.setName(targetPackageName);
 					if (targetPackageName != null && !targetPackageName.isEmpty() || (targetPackageUri != null && !targetPackageUri.isEmpty())) {
 						// Synchronization only required if there is no backend package (= no previous sync)
-						apackDependency.setRequiresSynchronization(false);
+						apackDependency.setRequiresLink(false);
 					}
 					apackDependency.setTargetPackage(objectReference);
 					break;

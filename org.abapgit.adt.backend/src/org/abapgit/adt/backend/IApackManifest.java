@@ -106,4 +106,6 @@ public interface IApackManifest {
 
 	int getSyncMessageType();
 
+	boolean isEmpty();
+
 }

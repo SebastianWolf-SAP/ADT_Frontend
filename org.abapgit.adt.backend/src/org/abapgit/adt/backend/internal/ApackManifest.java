@@ -80,4 +80,9 @@ public class ApackManifest implements IApackManifest {
 		return this.syncMessageType;
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return this.descriptor == null;
+	}
+
 }

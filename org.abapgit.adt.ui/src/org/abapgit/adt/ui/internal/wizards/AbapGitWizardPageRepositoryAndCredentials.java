@@ -32,6 +32,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
+	private final IRepositoryService repositoryService;
 
 	private Text txtURL;
 	private Text txtUser;
@@ -45,12 +46,14 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private final Boolean pullAction;
 	private boolean wasVisibleBefore;
 
-	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
+	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData, Boolean pullAction,
+			IRepositoryService repositoryService) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
 		this.pullAction = pullAction;
+		this.repositoryService = repositoryService;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
 
@@ -148,8 +151,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_check_compatibility,
 								IProgressMonitor.UNKNOWN);
-						isSupported[0] = RepositoryServiceFactory
-								.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor) != null;
+						isSupported[0] = AbapGitWizardPageRepositoryAndCredentials.this.repositoryService != null;
 					}
 				});
 				if (!isSupported[0]) {

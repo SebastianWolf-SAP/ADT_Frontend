@@ -18,6 +18,7 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
@@ -50,6 +51,7 @@ public class AbapGitWizard extends Wizard {
 	private AbapGitWizardPageApack pageApack;
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
+	private IRepositoryService repositoryService;
 
 	public AbapGitWizard(IProject project) {
 		this.project = project;
@@ -64,11 +66,24 @@ public class AbapGitWizard extends Wizard {
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
 	}
 
+	protected AbapGitWizard(IProject project, IAdtTransportService transportService, IRepositoryService repositoryService) {
+		this(project);
+		this.transportService = transportService;
+		this.repositoryService = repositoryService;
+	}
+
 	@Override
 	public void addPages() {
-		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false);
+		if (this.transportService == null) {
+			this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
+		}
+		if (this.repositoryService == null) {
+			this.repositoryService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
+		}
+		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false,
+				this.repositoryService);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, false);
-		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
+
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
@@ -140,15 +155,16 @@ public class AbapGitWizard extends Wizard {
 					}
 				}
 
-				private void pullLinkedRepositories(IProgressMonitor monitor, IRepositoryService repoService, IRepositories repositoriesToLink) {
+				private void pullLinkedRepositories(IProgressMonitor monitor, IRepositoryService repoService,
+						IRepositories repositoriesToLink) {
 					// Need to retrieve linked repositories as only they contain the PULL link needed to continue...
 					IRepositories linkedRepositories = repoService.getRepositories(monitor);
 					for (IRepository repository : repositoriesToLink.getRepositories()) {
 						IRepository linkedRepository = linkedRepositories.getRepository(repository.getUrl());
 						if (linkedRepository != null) {
 							repoService.pullRepository(linkedRepository, linkedRepository.getBranch(),
-									AbapGitWizard.this.transportPage.getTransportRequestNumber(),
-									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+									AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
+									AbapGitWizard.this.cloneData.pass, monitor);
 						}
 					}
 				}

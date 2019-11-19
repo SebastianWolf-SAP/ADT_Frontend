@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -486,7 +487,8 @@ public class AbapGitView extends ViewPart {
 					}
 
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
+							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories,
+									getRepositoryService(getDestination(AbapGitView.this.lastProject))));
 
 					// customized MessageDialog with configured buttons
 					MessageDialog dialog = new MessageDialog(getSite().getShell(), Messages.AbapGitView_ConfDialog_title, null,
@@ -561,6 +563,10 @@ public class AbapGitView extends ViewPart {
 
 	private static String getDestination(IProject project) {
 		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+	}
+
+	private static IRepositoryService getRepositoryService(String destination) {
+		return RepositoryServiceFactory.createRepositoryService(destination, new NullProgressMonitor());
 	}
 
 	private void updateView(boolean ensureLogon) {
